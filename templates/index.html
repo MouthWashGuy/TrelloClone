@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Product Backlog</title>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"/>
+{% endblock %}
+
+{% block body %}
+<div class="product_backlog">
+    <h1>Product Backlog &#128081;</h1>
+    <input type="checkbox" id="add_task_check">
+    <label for="add_task_check" class="show_add_task_btn">Add Task</label>
+    <div class="add_task_form">
+      <label for="add_task_check" class="close-btn fas fa-times"></label>
+      <div class="text">Add Task</div>
+      <form method="POST">
+        <div class="txt_field">
+          <input type="text" name="taskname" required>
+          <span></span>
+          <label>Task Name</label>
+        </div>
+        <div class="description_field">
+            <textarea cols="30" rows="10" type="text" name="taskdescription" placeholder="Description"></textarea>
+            <span></span>   
+        </div>
+        <div class="task_type">
+            <label for="type">Task Type</label>
+            <select id="type" name="tasktype">
+                <option value="Story" selected>User Story</option>
+                <option value="Bug">Bug</option>
+            </select>
+        </div>
+        <div class="task_tag">
+            <label for="tag">Task Tag</label>
+            <select id="tag" name="tasktag">
+                <option value="Core" selected>Core</option>
+                <option value="UI">UI</option>
+                <option value="Testing">Testing</option>
+            </select>
+        </div>
+        <div class="task_priority">
+            <label for="priority">Task Priority</label>
+            <select id="priority" name="taskpriority">
+                <option value="Low" selected>Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+            </select>
+        </div>
+        <div class="task_story_point">
+            <label for="story_point">Story Points</label>
+            <select id="story_point" name="taskstorypoint">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="task_assignee">
+            <label for="assignee">Assign Too</label>
+            <select id="assignee" name="taskassignee">
+                <option value="" selected>Nobody</option>
+                {% for user in users %}
+                    <option value="{{ user[1] }}" selected>{{ user[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <input type="submit" value="Create Task">
+      </form>
+    </div>
+    <input type="checkbox" id="check">
+    <label for="check">
+        <i class="fas fa-bars" id="btn"></i>
+        <i class="fas fa-times" id="cancel"></i>            
+    </label>
+    <div class="sidebar">
+        <header>Navigation Menu</header>
+        <ul>
+            <li><a href="http://127.0.0.1:5000/">Backlog &#128081</a></li>
+            <li><a href="http://127.0.0.1:5000/sprint-board">Sprint Board &#127939</a></li>
+            <li><a href="http://127.0.0.1:5000/team_stats">Team Stats &#8987</a></li>
+            <li><a href="http://127.0.0.1:5000/membersboard">Team Manager &#128587</a></li>
+        </ul>
+    </div>
+    <div class="task_box">
+        {% for task in tasks %}
+            <div class="miniature_card">
+                <div class="back_facing">
+                    <p class="description">{{task[5]}}</p>
+                    <br>
+                    <a href="/delete/{{task[0]}}">Delete</a>
+                    <a href="/update/{{task[0]}}">Edit</a>
+                </div>
+                <div class="front_facing">
+                    {% if task[6] == "To do" %}
+                        <div><i class="fa fa-exclamation-circle" style="color:red; margin-top: 5px;"></i></div>
+                    {% elif task[6] == "Doing" %}
+                        <div><i class="fa fa-ellipsis-h" style="color:#CCCC00; margin-top: 5px;"></i></div>
+                    {% else %}
+                        <div><i class="fa fa-check" style="color:green; margin-top: 5px;"></i><span class="quote2">&nbsp;&nbsp;Completed on {{task[9]}}</span></div>
+                    {% endif %}
+                    <div class="card_text">
+                        <h3 class="name">{{task[1]}}</h3>
+                        <br>
+                    </div>
+                    <div class="tag_type_priority">
+                        <i class="fa fa-id-card"></i>
+                        <span class="quote2">Type: {{task[13]}}</span>
+                        <br>
+                        <i class="fa fa-tags"></i>
+                        <span class="quote2">Tag: {{task[2]}}</span>
+                        <br>
+                        <i class="fa fa-calendar"></i>
+                        <span class="quote2">Priority: {{task[3]}}</span>
+                        <br>
+                        <i class="fa fa-user-circle"></i>
+                        <span class="quote2">Assignee: {{task[11]}}</span>
+                        <br>
+                        <i class="fa fa-rocket"></i>
+                        {% if task[12] == None %}
+                            <span class="quote2">Sprint: None</span>
+                        {% else %}
+                            {% for sprint in sprints %}
+                                {% if task[12] == sprint[0] %}
+                                    <span class="quote2">Sprint: {{sprint[1]}}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <br>
+                        <i class="fa fa-hourglass-half"></i>
+                        {% if task[14] == 0 %}
+                            <span class="quote2">Timer: 0 Hrs 0 Min 0 Sec</span>
+                        {% else %}
+                            {% set time = task[14]|int() %}
+                            {% set time = time - 662400 %}
+                            <span class="quote2">Timer: {{time // 3600}} Hrs {{(time // 60) - (60*(time // 3600))}} Min {{time % 60}} Sec</span>
+                        {% endif %}
+                        <br>
+                        <div class="line">
+                            {% if task[4] == "1" %}
+                                <span class="color-1"></span>
+                            {% elif task[4] == "2" %}
+                                <span class="color-1"></span>
+                                <span class="color-2"></span>
+                            {% elif task[4] == "3" %}
+                                <span class="color-1"></span>
+                                <span class="color-2"></span>
+                                <span class="color-3"></span>
+                            {% elif task[4] == "4" %}
+                                <span class="color-1"></span>
+                                <span class="color-2"></span>
+                                <span class="color-3"></span>
+                                <span class="color-4"></span>
+                            {% else %}
+                                <span class="color-1"></span>
+                                <span class="color-2"></span>
+                                <span class="color-3"></span>
+                                <span class="color-4"></span>
+                                <span class="color-5"></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
